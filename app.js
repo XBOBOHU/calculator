@@ -9,6 +9,8 @@
   const VIEW_KEY = 'autocalc_view_v1';
   const CALC_POS_KEY = 'autocalc_calc_pos_v1';
   const SUM_POS_KEY = 'autocalc_floatsum_pos_v1';
+  const CALC_SIZE_KEY = 'autocalc_calc_size_v1';
+  const SUM_SIZE_KEY = 'autocalc_floatsum_size_v1';
 
   const CORNER_W = 46;
   const HEAD_H = 34;
@@ -2074,6 +2076,64 @@
   }
 
   /* ==========================================================
+   * 悬浮面板缩放 / 尺寸记忆（拖右下角手柄）
+   * ========================================================== */
+  function initFloatResize(panel, sizeKey, posKey, minW, minH) {
+    const handle = panel.querySelector('.float-resize');
+    if (!handle) return;
+    let rs = null;
+
+    handle.addEventListener('pointerdown', (e) => {
+      if (e.button) return;
+      const rect = panel.getBoundingClientRect();
+      // 切到 left/top 坐标系，避免 right/bottom 定位干扰宽度计算
+      panel.style.left = rect.left + 'px';
+      panel.style.top = rect.top + 'px';
+      panel.style.right = 'auto';
+      panel.style.bottom = 'auto';
+      rs = { x: e.clientX, y: e.clientY, w: rect.width, h: rect.height, left: rect.left, top: rect.top };
+      panel.classList.add('resizing');
+      document.body.classList.add('resizing');
+      handle.setPointerCapture(e.pointerId);
+      e.preventDefault();
+      e.stopPropagation();
+    });
+
+    handle.addEventListener('pointermove', (e) => {
+      if (!rs) return;
+      const w = clamp(rs.w + e.clientX - rs.x, minW, Math.min(window.innerWidth - 8, 560));
+      const h = clamp(rs.h + e.clientY - rs.y, minH, Math.min(window.innerHeight - 8, 760));
+      panel.style.width = w + 'px';
+      panel.style.height = h + 'px';
+      // 贴着屏幕右/下边缘放大时，把面板往左/上顶，让手柄始终跟着手指
+      panel.style.left = clamp(rs.left, 4, Math.max(4, window.innerWidth - w - 4)) + 'px';
+      panel.style.top = clamp(rs.top, 4, Math.max(4, window.innerHeight - h - 4)) + 'px';
+    });
+
+    function endResize() {
+      if (!rs) return;
+      rs = null;
+      panel.classList.remove('resizing');
+      document.body.classList.remove('resizing');
+      writeJSON(sizeKey, { w: panel.style.width, h: panel.style.height });
+      writeJSON(posKey, { left: panel.style.left, top: panel.style.top });
+    }
+
+    handle.addEventListener('pointerup', endResize);
+    handle.addEventListener('pointercancel', endResize);
+  }
+
+  function restoreFloatSize(panel, sizeKey, minW, minH) {
+    const s = readJSON(sizeKey);
+    if (!s) return;
+    const w = parseInt(s.w, 10);
+    const h = parseInt(s.h, 10);
+    if (!w || !h) return;
+    panel.style.width = clamp(w, minW, Math.max(minW, window.innerWidth - 8)) + 'px';
+    panel.style.height = clamp(h, minH, Math.max(minH, window.innerHeight - 8)) + 'px';
+  }
+
+  /* ==========================================================
    * 视图切换
    * ========================================================== */
   function switchView(name) {
@@ -2270,6 +2330,8 @@
 
     restoreFloatPos(floatCalc, CALC_POS_KEY);
     restoreFloatPos(floatSum, SUM_POS_KEY);
+    restoreFloatSize(floatCalc, CALC_SIZE_KEY, 190, 220);
+    restoreFloatSize(floatSum, SUM_SIZE_KEY, 200, 300);
     renderCalc();
 
     autoSumCalc.render();
@@ -2279,6 +2341,8 @@
     bindEvents();
     initFloatDrag(floatCalc, floatCalcHeader, CALC_POS_KEY);
     initFloatDrag(floatSum, floatSumHeader, SUM_POS_KEY);
+    initFloatResize(floatCalc, CALC_SIZE_KEY, CALC_POS_KEY, 190, 220);
+    initFloatResize(floatSum, SUM_SIZE_KEY, SUM_POS_KEY, 200, 300);
 
     switchView(readJSON(VIEW_KEY) === 'table' ? 'table' : 'calc');
 
