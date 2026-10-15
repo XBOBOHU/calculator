@@ -12,75 +12,212 @@
     <span>✧</span><span>⋆</span><span>✦</span>
   </div>
 
-  <div class="container">
-    <header class="app-header">
-      <h1>✦ 🧮 自动计算小助手 ✦</h1>
-      <p class="subtitle">输完稍等自动加，不用按回车 ☁</p>
-    </header>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-icon">✦</span>
+        <span class="brand-text">计算小助手</span>
+      </div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" id="navCalc" data-view="calc">
+          <span class="nav-icon">🧮</span>
+          <span class="nav-text">计算模块</span>
+        </button>
+        <button class="nav-item" id="navTable" data-view="table">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">表格模块</span>
+        </button>
+      </nav>
+    </aside>
 
-    <main class="main-grid">
-      <section class="card calculator">
-        <div class="total-display">
-          <span class="total-label">当前总计</span>
-          <span class="total-value" id="totalValue">0</span>
-        </div>
+    <main class="app-main">
+      <header class="app-header">
+        <h1>✦ 🧮 自动计算小助手 ✦</h1>
+        <p class="subtitle">输完稍等自动加，不用按回车 ☁</p>
+      </header>
 
-        <div class="input-wrapper">
-          <div class="single-input-row">
-            <input
-              type="text"
-              id="numInput"
-              placeholder="输完数字稍等或按 ↵ / 空格 / 逗号 自动添加"
-              autocomplete="off"
-              autofocus
-            />
-            <button class="btn btn-primary" id="btnAddOne">+ 添加</button>
-            <button class="btn btn-secondary" id="btnClearInput">🗑 清空列表</button>
+      <!-- ============ 计算模块 ============ -->
+      <section class="view" id="viewCalc">
+        <section class="card calculator">
+          <div class="total-display">
+            <span class="total-label">当前总计</span>
+            <span class="total-value" id="totalValue">0</span>
           </div>
-          <div class="input-hint">
-            已输入 <strong id="countNum">0</strong> 个数字，
-            合计 <strong id="subTotal">0</strong>
-            <span class="hint-right">停顿自动识别 · 粘贴自动拆分多个</span>
+
+          <div class="input-wrapper">
+            <div class="single-input-row">
+              <input
+                type="text"
+                id="numInput"
+                placeholder="输完数字稍等或按 ↵ / 空格 / 逗号 自动添加"
+                autocomplete="off"
+              />
+              <button class="btn btn-primary" id="btnAddOne">+ 添加</button>
+              <button class="btn btn-secondary" id="btnClearInput">🗑 清空列表</button>
+            </div>
+            <div class="input-hint">
+              已输入 <strong id="countNum">0</strong> 个数字，
+              合计 <strong id="subTotal">0</strong>
+              <span class="hint-right">停顿自动识别 · 粘贴自动拆分多个</span>
+            </div>
           </div>
-        </div>
 
-        <div class="chip-area" id="chipArea">
-          <span class="chip-empty">还没有数字，输一个试试吧</span>
-        </div>
+          <div class="chip-area" id="chipArea">
+            <span class="chip-empty">还没有数字，输一个试试吧</span>
+          </div>
 
-        <div class="actions">
-          <button class="btn btn-primary" id="btnSave">💾 保存为记录</button>
-          <button class="btn btn-secondary" id="btnImage">🖼 保存图片</button>
-          <button class="btn btn-ghost" id="btnExport">📥 导出 CSV</button>
-        </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="btnSave">💾 保存为记录</button>
+            <button class="btn btn-secondary" id="btnImage">🖼 保存图片</button>
+            <button class="btn btn-ghost" id="btnExport">📥 导出 CSV</button>
+            <button class="btn btn-secondary" id="btnHistoryCalc">
+              📒 历史记录 <span class="btn-badge" id="calcBadge">0</span>
+            </button>
+            <button class="btn btn-ghost" id="btnCalcOpen">🧮 悬浮计算器</button>
+          </div>
+        </section>
+      </section>
+
+      <!-- ============ 表格模块 ============ -->
+      <section class="view" id="viewTable" hidden>
+        <section class="card sheet-card">
+          <div class="view-head">
+            <h2>📊 表格模块</h2>
+            <p class="view-desc">
+              像 Excel 一样点单元格直接输入 · 回车换行 · 拖右下角手柄加行列 · 拖表头分隔线调尺寸
+            </p>
+          </div>
+
+          <div class="table-toolbar">
+            <label>行 <input type="number" id="tblRows" min="1" max="50" value="3" /></label>
+            <label>列 <input type="number" id="tblCols" min="1" max="20" value="3" /></label>
+            <button class="btn btn-primary btn-sm" id="btnBuildTable">✦ 应用尺寸</button>
+            <button class="btn btn-secondary btn-sm" id="btnAddRow">+ 行</button>
+            <button class="btn btn-secondary btn-sm" id="btnAddCol">+ 列</button>
+            <button class="btn btn-ghost btn-sm" id="btnInsertImg">🖼 插入图片</button>
+            <span class="toolbar-sep"></span>
+            <button class="btn btn-primary btn-sm" id="btnSaveSheet">💾 保存为记录</button>
+            <button class="btn btn-ghost btn-sm" id="btnTableExport">📥 导出 CSV</button>
+            <button class="btn btn-secondary btn-sm" id="btnHistorySheet">
+              📒 历史记录 <span class="btn-badge" id="sheetBadge">0</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btnSumOpen">⚡ 悬浮累加</button>
+            <button class="btn btn-ghost btn-sm" id="btnCalcOpen2">🧮 悬浮计算器</button>
+            <button class="btn btn-danger btn-sm" id="btnTableClear">🗑 清空</button>
+          </div>
+
+          <div class="table-wrap" id="sheetWrap"></div>
+          <p class="sheet-status" id="sheetStatus"></p>
+        </section>
       </section>
     </main>
   </div>
 
-  <button class="btn-history-fab" id="btnHistory" aria-label="历史记录">
-    📒
-    <span class="fab-badge" id="fabBadge">0</span>
-  </button>
+  <!-- ============ 表格模块悬浮累加窗 ============ -->
+  <div class="float-panel float-sum" id="floatSum" aria-hidden="true">
+    <div class="float-header sum-header" id="floatSumHeader">
+      <span class="float-title">⚡ 悬浮累加</span>
+      <button class="float-close" id="floatSumClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="sum-total-box">
+      <span class="sum-total-label">当前总计</span>
+      <span class="sum-total" id="sumTotal">0</span>
+    </div>
+    <div class="sum-input-row">
+      <input type="text" id="sumInput" placeholder="输完稍等自动加" autocomplete="off" />
+      <button class="btn btn-primary btn-sm" id="btnSumAdd">+ 添加</button>
+    </div>
+    <div class="sum-hint">
+      已输入 <strong id="sumCount">0</strong> 个 · 合计 <strong id="sumSub">0</strong>
+    </div>
+    <div class="chip-area sum-chips" id="sumChips">
+      <span class="chip-empty">还没有数字，输一个试试吧</span>
+    </div>
+    <div class="sum-actions">
+      <button class="btn btn-primary btn-sm" id="btnSumSave">💾 保存为记录</button>
+      <button class="btn btn-secondary btn-sm" id="btnSumClear">🗑 清空列表</button>
+    </div>
+  </div>
 
+  <!-- ============ 悬浮键盘计算器 ============ -->
+  <div class="float-panel float-calc" id="floatCalc" aria-hidden="true">
+    <div class="float-header" id="floatCalcHeader">
+      <span class="float-title">🧮 悬浮计算器</span>
+      <button class="float-close" id="floatCalcClose" aria-label="关闭">✕</button>
+    </div>
+    <div class="float-calc-screen">
+      <div class="float-calc-expr" id="calcExpr">0</div>
+      <div class="float-calc-result" id="calcResult">0</div>
+    </div>
+    <div class="float-calc-keys" id="calcKeys">
+      <button class="ck ck-fn" data-k="C">C</button>
+      <button class="ck ck-fn" data-k="back">⌫</button>
+      <button class="ck ck-fn" data-k="neg">±</button>
+      <button class="ck ck-op" data-k="/">÷</button>
+
+      <button class="ck" data-k="7">7</button>
+      <button class="ck" data-k="8">8</button>
+      <button class="ck" data-k="9">9</button>
+      <button class="ck ck-op" data-k="*">×</button>
+
+      <button class="ck" data-k="4">4</button>
+      <button class="ck" data-k="5">5</button>
+      <button class="ck" data-k="6">6</button>
+      <button class="ck ck-op" data-k="-">−</button>
+
+      <button class="ck" data-k="1">1</button>
+      <button class="ck" data-k="2">2</button>
+      <button class="ck" data-k="3">3</button>
+      <button class="ck ck-op" data-k="+">+</button>
+
+      <button class="ck ck-zero" data-k="0">0</button>
+      <button class="ck" data-k=".">.</button>
+      <button class="ck ck-eq" data-k="=">=</button>
+    </div>
+  </div>
+
+  <!-- ============ 历史记录（计算 / 表格） ============ -->
   <div class="modal-overlay" id="historyModal" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-header">
         <h2>📒 历史记录 <span class="history-count" id="historyCount">0 条</span></h2>
         <div class="modal-header-actions">
-          <button class="btn btn-danger btn-sm" id="btnClearAll">⚠ 清空所有记录</button>
+          <button class="btn btn-danger btn-sm" id="btnClearAll">⚠ 清空记录</button>
           <button class="modal-close" id="modalClose" aria-label="关闭">✕</button>
         </div>
       </div>
+
+      <div class="tabs" id="historyTabs" hidden>
+        <button class="tab" id="tabSheet" data-tab="sheet">📊 表格记录</button>
+        <button class="tab" id="tabCalc" data-tab="calc">🧮 计算记录</button>
+      </div>
+
       <div class="history-list" id="historyList">
         <p class="empty-tip">还没有记录，输入数字后点击"保存为记录"吧</p>
       </div>
     </div>
   </div>
 
+  <!-- ============ 表格记录详情 ============ -->
+  <div class="modal-overlay" id="sheetViewModal" aria-hidden="true">
+    <div class="modal-content sheet-view-modal">
+      <div class="modal-header">
+        <h2>📊 表格详情 <span class="history-count" id="sheetViewMeta"></span></h2>
+        <div class="modal-header-actions">
+          <button class="btn btn-secondary btn-sm" id="sheetViewImg">🖼 保存图片</button>
+          <button class="btn btn-primary btn-sm" id="sheetViewRestore">↻ 恢复此表格</button>
+          <button class="modal-close" id="sheetViewClose" aria-label="关闭">✕</button>
+        </div>
+      </div>
+      <div class="sheet-view-wrap" id="sheetViewBody"></div>
+    </div>
+  </div>
+
+  <!-- ============ 图片预览 ============ -->
   <div class="modal-overlay" id="imgModal" aria-hidden="true">
     <div class="modal-content img-modal">
       <div class="modal-header">
-        <h2>🖼 计算结果图片</h2>
+        <h2 id="imgTitle">🖼 计算结果图片</h2>
         <button class="modal-close" id="imgClose" aria-label="关闭">✕</button>
       </div>
       <div class="img-body">
@@ -93,6 +230,8 @@
       </div>
     </div>
   </div>
+
+  <input type="file" id="cellImgInput" accept="image/*" hidden />
 
   <div class="toast" id="toast"></div>
 
