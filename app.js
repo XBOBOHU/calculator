@@ -18,6 +18,8 @@
   const MAX_COL_W = 460;
   const MIN_ROW_H = 30;
   const MAX_ROW_H = 320;
+  // 表格行数上限（列数上限仍在 20）
+  const SHEET_MAX_ROWS = 500;
 
   // 单元格图片：压缩目标（最长边 px）与 jpeg 质量
   const CELL_IMG_MAX = 900;
@@ -715,10 +717,12 @@
     const H = Math.round(PAD + TITLE_H + META_H + tableH + PAD);
 
     const canvas = document.createElement('canvas');
-    canvas.width = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
+    // 行数很多时表格会很高，按需降低分辨率，避免超出浏览器 canvas 尺寸上限导致导图空白
+    const scale = H > 6000 ? 1 : dpr;
+    canvas.width = Math.round(W * scale);
+    canvas.height = Math.round(H * scale);
     const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
+    ctx.scale(scale, scale);
     ctx.textBaseline = 'middle';
 
     const bg = ctx.createLinearGradient(0, 0, 0, H);
@@ -1159,7 +1163,7 @@
     };
     if (!d || !Array.isArray(d.cells) || d.cells.length === 0) return fallback;
 
-    const rows = clamp(parseInt(d.rows, 10) || d.cells.length, 1, 50);
+    const rows = clamp(parseInt(d.rows, 10) || d.cells.length, 1, SHEET_MAX_ROWS);
     const cols = clamp(parseInt(d.cols, 10) || 1, 1, 20);
     const cells = [];
     for (let r = 0; r < rows; r++) {
@@ -1426,7 +1430,7 @@
   }
 
   function buildSheet() {
-    const rows = clamp(parseInt(tblRows.value, 10) || 1, 1, 50);
+    const rows = clamp(parseInt(tblRows.value, 10) || 1, 1, SHEET_MAX_ROWS);
     const cols = clamp(parseInt(tblCols.value, 10) || 1, 1, 20);
     const cells = [];
     const images = [];
@@ -1451,8 +1455,8 @@
   }
 
   function addSheetRow() {
-    if (sheetData.rows >= 50) {
-      showToast('最多 50 行');
+    if (sheetData.rows >= SHEET_MAX_ROWS) {
+      showToast('最多 ' + SHEET_MAX_ROWS + ' 行');
       return false;
     }
     sheetData.cells.push(new Array(sheetData.cols).fill(''));
