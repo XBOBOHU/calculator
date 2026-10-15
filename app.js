@@ -60,6 +60,7 @@
   const btnAddRow = document.getElementById('btnAddRow');
   const btnAddCol = document.getElementById('btnAddCol');
   const btnSaveSheet = document.getElementById('btnSaveSheet');
+  const btnSaveSheetImg = document.getElementById('btnSaveSheetImg');
   const btnTableExport = document.getElementById('btnTableExport');
   const btnHistorySheet = document.getElementById('btnHistorySheet');
   const btnSumOpen = document.getElementById('btnSumOpen');
@@ -107,6 +108,8 @@
   const imgCancel = document.getElementById('imgCancel');
   const imgPreview = document.getElementById('imgPreview');
   const imgDownload = document.getElementById('imgDownload');
+  const imgShare = document.getElementById('imgShare');
+  let pendingShareFile = null;
 
   // 表格记录详情弹窗
   const sheetViewModal = document.getElementById('sheetViewModal');
@@ -845,6 +848,7 @@
     imgPreview.alt = '表格记录图片预览';
     imgDownload.href = url;
     imgDownload.download = `表格记录_${dateKey(now.getTime())}_${data.rows}行${data.cols}列.png`;
+    setupImgShare(url, imgDownload.download);
     imgModal.classList.add('show');
     imgModal.setAttribute('aria-hidden', 'false');
   }
@@ -1085,6 +1089,7 @@
     imgPreview.alt = '计算结果图片预览';
     imgDownload.href = url;
     imgDownload.download = `计算结果_${dateKey(now.getTime())}_总计${totalText.replace(/,/g, '')}.png`;
+    setupImgShare(url, imgDownload.download);
     imgModal.classList.add('show');
     imgModal.setAttribute('aria-hidden', 'false');
   }
@@ -1092,6 +1097,32 @@
   function closeImgModal() {
     imgModal.classList.remove('show');
     imgModal.setAttribute('aria-hidden', 'true');
+  }
+
+  // dataURL → Blob（不用 fetch，兼容各种手机浏览器）
+  function dataURLToBlob(url) {
+    const parts = url.split(',');
+    const mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/png';
+    const bin = atob(parts[1]);
+    const arr = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+
+  // 若浏览器支持分享文件，则显示「分享 / 存入相册」按钮（iOS 分享面板可直接存进相册）
+  function setupImgShare(url, filename) {
+    pendingShareFile = null;
+    imgShare.hidden = true;
+    if (!navigator.share || !navigator.canShare) return;
+    let file;
+    try {
+      file = new File([dataURLToBlob(url)], filename, { type: 'image/png' });
+    } catch (e) {
+      return;
+    }
+    if (!navigator.canShare({ files: [file] })) return;
+    pendingShareFile = file;
+    imgShare.hidden = false;
   }
 
   /* ==========================================================
@@ -2113,6 +2144,12 @@
 
     imgClose.addEventListener('click', closeImgModal);
     imgCancel.addEventListener('click', closeImgModal);
+    imgShare.addEventListener('click', () => {
+      if (!pendingShareFile) return;
+      navigator
+        .share({ files: [pendingShareFile], title: imgDownload.download.replace(/\.png$/, '') })
+        .catch(() => {});
+    });
     imgModal.addEventListener('click', (e) => {
       if (e.target === imgModal) closeImgModal();
     });
@@ -2137,6 +2174,14 @@
       insertTarget = null;
     });
     btnSaveSheet.addEventListener('click', addSheetRecord);
+    btnSaveSheetImg.addEventListener('click', () => {
+      if (!sheetData.rows || !sheetData.cols) return;
+      buildSheetImage(sheetData)
+        .then(() => {
+          imgTitle.textContent = '🖼 当前表格图片';
+        })
+        .catch(() => showToast('❌ 图片生成失败，试试减少行数'));
+    });
     btnTableExport.addEventListener('click', exportSheetCSV);
     btnTableClear.addEventListener('click', clearSheet);
     btnHistorySheet.addEventListener('click', () => openHistory('sheet'));

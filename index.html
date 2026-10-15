@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
   <title>自动计算小助手</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
   <div class="sparkle-layer" aria-hidden="true">
@@ -97,6 +97,7 @@
             <button class="btn btn-ghost btn-sm" id="btnInsertImg">🖼 插入图片</button>
             <span class="toolbar-sep"></span>
             <button class="btn btn-primary btn-sm" id="btnSaveSheet">💾 保存为记录</button>
+            <button class="btn btn-secondary btn-sm" id="btnSaveSheetImg">🖼 保存当前表格图片</button>
             <button class="btn btn-ghost btn-sm" id="btnTableExport">📥 导出 CSV</button>
             <button class="btn btn-secondary btn-sm" id="btnHistorySheet">
               📒 历史记录 <span class="btn-badge" id="sheetBadge">0</span>
@@ -222,10 +223,11 @@
       </div>
       <div class="img-body">
         <img id="imgPreview" alt="计算结果图片预览" />
-        <p class="img-tip">手机浏览器可长按上方图片保存，或点击"下载图片"</p>
+        <p class="img-tip">手机：长按上方图片选「存储图像」即可存进相册；或点下方「分享」按钮（电脑上为"下载图片"）</p>
       </div>
       <div class="img-actions">
         <a class="btn btn-primary" id="imgDownload" download>⬇ 下载图片</a>
+        <button class="btn btn-secondary" id="imgShare" hidden>📤 分享 / 存入相册</button>
         <button class="btn btn-secondary" id="imgCancel">关闭</button>
       </div>
     </div>
@@ -235,6 +237,6 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
